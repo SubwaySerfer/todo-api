@@ -10,3 +10,6 @@ Content-Type: application/json
   "Title": "task4",
   "Description": "description31"
 }
+
+### GET task by ID
+GET http://localhost:8080/task/2

@@ -48,5 +48,22 @@ func main() {
 		})
 	})
 
+	r.GET("/task/:id", func(c *gin.Context) {
+		id := c.Param("id")
+
+		var task models.Task
+		query := "SELECT id, title, description FROM tasks WHERE id = $1"
+
+		err := db.DB.QueryRow(query, id).Scan(&task.ID, &task.Title, &task.Description)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"task": task,
+		})
+	})
+
   r.Run(":8080")
 }
