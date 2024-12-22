@@ -1,2 +1,4 @@
 .env
 tmp/
+db_test.go
+routes_test.go
