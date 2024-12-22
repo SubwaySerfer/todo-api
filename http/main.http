@@ -14,5 +14,8 @@ Content-Type: application/json
 ### GET task by ID
 GET http://localhost:8080/task/2
 
+### GET all tasks
+GET http://localhost:8080/tasks
+
 ### DELETE task by ID
 DELETE http://localhost:8080/task/2

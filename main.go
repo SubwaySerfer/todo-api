@@ -64,6 +64,7 @@ func main() {
 			"task": task,
 		})
 	})
+
 	r.DELETE("/task/:id", func(c *gin.Context) {
 		id := c.Param("id")
 
@@ -76,6 +77,36 @@ func main() {
 
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Task deleted",
+		})
+	})
+
+	r.GET("/tasks", func(c *gin.Context) {
+		var tasks []models.Task
+		query := "SELECT id, title, description FROM tasks"
+
+		rows, err := db.DB.Query(query)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query tasks: " + err.Error()})
+			return
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var task models.Task
+			if err := rows.Scan(&task.ID, &task.Title, &task.Description); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan task: " + err.Error()})
+				return
+			}
+			tasks = append(tasks, task)
+		}
+
+		if err := rows.Err(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error during rows iteration: " + err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"tasks": tasks,
 		})
 	})
 
