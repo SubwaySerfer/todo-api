@@ -7,9 +7,12 @@ POST http://localhost:8080/task
 Content-Type: application/json
 
 {
-  "Title": "task4",
+  "Title": "task55",
   "Description": "description31"
 }
 
 ### GET task by ID
 GET http://localhost:8080/task/2
+
+### DELETE task by ID
+DELETE http://localhost:8080/task/2

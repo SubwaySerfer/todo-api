@@ -64,6 +64,20 @@ func main() {
 			"task": task,
 		})
 	})
+	r.DELETE("/task/:id", func(c *gin.Context) {
+		id := c.Param("id")
+
+		query := "DELETE FROM tasks WHERE id = $1"
+
+		_, err := db.DB.Exec(query, id)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Task deleted",
+		})
+	})
 
   r.Run(":8080")
 }
