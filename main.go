@@ -2,25 +2,23 @@ package main
 
 import (
     // "todo-api/routes"
+		"todo-api/db"
     "todo-api/models"
     "github.com/gin-gonic/gin"
 		"net/http"
-		"log"
-		"fmt"
-		"github.com/joho/godotenv"
-		"os"
-
-		"database/sql"
-		_ "github.com/lib/pq"
 )
 
 func main() {
-    r := gin.Default()
+	db.InitDB()
+	defer db.CloseDB()
 
-    // routes.SetupRoutes(r)
+	db.CreateTasksTable(db.DB)
+  r := gin.Default()
 
-		r.GET("/hello", func(c *gin.Context) {
-			c.String(200, "Hello, World!")
+// routes.SetupRoutes(r)
+
+	r.GET("/hello", func(c *gin.Context) {
+		c.String(200, "Hello, World!")
 	})
 
 	r.POST("/task", func(c *gin.Context) {
@@ -31,40 +29,24 @@ func main() {
 			return
 		}
 
+		query := "INSERT INTO tasks (title, description) VALUES ($1, $2) RETURNING id"
+
+		var id int
+		err := db.DB.QueryRow(query, task.Title, task.Description).Scan(&id)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Task created",
-			"task": task,
+			"task": gin.H{
+				"id": id,
+				"title": task.Title,
+				"description": task.Description,
+			},
 		})
 	})
-
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Ошибка загрузки .env файла: %v", err)
-	}
-
-	// Чтение переменных окружения
-	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
-	sslMode := os.Getenv("SSL_MODE")
-
-	connStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=%s",
-		dbUser, dbPassword, dbName, dbHost, dbPort, sslMode)
-
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatalf("Ошибка подключения: %v", err)
-	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		log.Fatalf("Не удалось подключиться к базе данных: %v", err)
-	}
-
-	fmt.Println("Успешное подключение к базе данных!")
 
   r.Run(":8080")
 }
