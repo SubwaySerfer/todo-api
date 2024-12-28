@@ -2,7 +2,9 @@ package main
 
 import (
 	"time"
+	"todo-api/auth"
 	"todo-api/db"
+	"todo-api/middleware"
 	"todo-api/routes"
 
 	"github.com/gin-contrib/cors"
@@ -16,6 +18,11 @@ func main() {
 
 	db.CreateTasksTable(db.DB)
 	r := gin.Default()
+
+	r.POST("/login", auth.LoginHandler)
+
+	protected := r.Group("/protected")
+	protected.Use(middleware.AuthMiddleware())
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"http://localhost:5500"},        // Разрешённые домены
@@ -34,6 +41,12 @@ func main() {
 		AllowCredentials: true,                       // Разрешение на передачу куков
 		MaxAge:           12 * time.Hour,             // Кэширование CORS настроек
 	}))
+
+	{
+		protected.GET("/", func(c *gin.Context) {
+			c.JSON(200, gin.H{"message": "Welcome to the protected area!"})
+		})
+	}
 
 	routes.SetupRoutes(r)
 
