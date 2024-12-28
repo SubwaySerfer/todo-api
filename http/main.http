@@ -1,9 +1,11 @@
+@url = http://localhost:8088
+
 ### hello
-GET http://localhost:8080/hello
+GET {{url}}/hello
 
 
 ### task
-POST http://localhost:8080/task
+POST {{url}}/task
 Content-Type: application/json
 
 {
@@ -12,10 +14,10 @@ Content-Type: application/json
 }
 
 ### GET task by ID
-GET http://localhost:8080/task/4
+GET {{url}}/task/4
 
 ### GET all tasks
-GET http://localhost:8080/tasks
+GET {{url}}/tasks
 
 ### DELETE task by ID
-DELETE http://localhost:8080/task/2
+DELETE {{url}}/task/2
